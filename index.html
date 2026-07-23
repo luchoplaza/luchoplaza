@@ -17,14 +17,22 @@
 <meta property="og:title" content="Luis Plaza A. | Ingeniero APC & Data Scientist">
 <meta property="og:description" content="Especialista en Control Avanzado de Proceso (APC/MPC), desalinización y tratamiento de aguas. Ingeniero Civil Químico UTFSM · Santiago, Chile.">
 <meta property="og:url" content="https://luchoplaza.github.io/">
+<meta property="og:image" content="https://luchoplaza.github.io/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Luis Plaza A. — Ingeniero APC & Data Scientist, Santiago, Chile">
 <meta property="og:locale" content="es_CL">
 <meta property="profile:first_name" content="Luis">
 <meta property="profile:last_name" content="Plaza Álvarez">
 
 <!-- ── TWITTER CARD ── -->
-<meta name="twitter:card" content="summary">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Luis Plaza A. | Ingeniero APC & Data Scientist">
-<meta name="twitter:description" content="Especialista en APC/MPC, desalinización y Data Science. Santiago, Chile.">
+<meta name="twitter:description" content="Especialista en APC/MPC, tratamiento de aguas y entusiasta de IA. Santiago, Chile.">
+<meta name="twitter:image" content="https://luchoplaza.github.io/og-image.png">
+
+<!-- ── FAVICON ── -->
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 
 <!-- ── SCHEMA.ORG STRUCTURED DATA ── -->
 <script type="application/ld+json">
@@ -73,6 +81,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+<script>document.documentElement.classList.add('js');</script>
 
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -102,6 +111,76 @@
     font-size: 15px;
     line-height: 1.75;
     overflow-x: hidden;
+    position: relative;
+  }
+
+  /* ── FONDO INGENIERIL · RTD PFR vs CSTR ──
+     Canvas fijo detrás del hero: distribución de tiempos de residencia
+     de dos reactores clásicos. Sutil, en la paleta del sitio. */
+  /* Escritorio: la figura no genera caja propia (display:contents), de modo
+     que el canvas y su pie se posicionan como fondo a pantalla completa,
+     detrás del texto del hero, sin ocupar espacio en el flujo. */
+  .hero-anim { display: contents; }
+
+  #rtd-bg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.7;
+    -webkit-mask-image: linear-gradient(to bottom,
+      transparent 0%, #000 8%, #000 98%, transparent 100%);
+    mask-image: linear-gradient(to bottom,
+      transparent 0%, #000 8%, #000 98%, transparent 100%);
+  }
+
+  /* Pie de figura para el fondo RTD: rótulo técnico discreto,
+     anclado al pie de la primera pantalla. */
+  #rtd-caption {
+    position: absolute;
+    top: calc(100vh - 2.4rem);
+    right: 1.6rem;
+    z-index: 1;
+    max-width: min(70vw, 30rem);
+    text-align: right;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    opacity: 0.6;
+    pointer-events: none;
+    font-style: normal;
+    line-height: 1.4;
+  }
+  #rtd-caption b { color: var(--rust); font-weight: 600; }
+
+  /* Teléfono: la animación se convierte en un bloque propio del hero,
+     intercalado entre el nombre y la descripción, con su pie debajo. */
+  @media (max-width: 999px) {
+    .hero-anim {
+      display: block;
+      width: 100%;
+      margin: 1.6rem 0 2rem;
+    }
+    #rtd-bg {
+      position: static;
+      display: block;
+      width: 100%;
+      height: 300px;
+      z-index: auto;
+      opacity: 0.95;
+    }
+    #rtd-caption {
+      position: static;
+      max-width: none;
+      margin-top: 0.6rem;
+      text-align: left;
+      font-size: 9px;
+      opacity: 0.65;
+    }
   }
 
   /* SCROLL PROGRESS */
@@ -142,10 +221,18 @@
     text-decoration: none;
   }
 
+  /* En teléfonos el nombre ya encabeza el hero: ocultamos la marca del nav
+     para no saturar y dejamos los enlaces alineados a la izquierda. */
+  @media (max-width: 580px) {
+    .nav-brand { display: none; }
+    .nav-inner { justify-content: flex-start; }
+  }
+
   .nav-links {
     display: flex;
     gap: 2rem;
     list-style: none;
+    flex-wrap: nowrap;
   }
 
   .nav-links a {
@@ -154,10 +241,25 @@
     color: var(--ink3);
     text-decoration: none;
     letter-spacing: 0.04em;
+    white-space: nowrap;
     transition: color 0.2s;
   }
 
   .nav-links a:hover { color: var(--rust); }
+
+  /* Los cuatro enlaces deben caber en una sola línea también en pantallas
+     angostas: reducimos padding, separación y tamaño de forma escalonada
+     en lugar de dejar que se salgan o se apilen. */
+  @media (max-width: 640px) {
+    nav { padding: 0.8rem 1.25rem; }
+    .nav-links { gap: 1.1rem; }
+    .nav-links a { font-size: 12px; letter-spacing: 0.02em; }
+  }
+  @media (max-width: 420px) {
+    nav { padding: 0.7rem 1rem; }
+    .nav-links { gap: 0.8rem; }
+    .nav-links a { font-size: 11px; letter-spacing: 0.01em; }
+  }
 
   /* HERO */
   #hero {
@@ -167,9 +269,23 @@
     padding: 7rem 2rem 5rem;
     max-width: var(--max);
     margin: 0 auto;
+    position: relative;
+    z-index: 1;
   }
 
   .hero-inner { width: 100%; }
+
+  /* En pantallas anchas el texto se alinea a la izquierda (mismo eje que las
+     secciones) y deja libre la mitad derecha para la animación de reactores. */
+  @media (min-width: 1000px) {
+    #hero {
+      max-width: none;
+      margin: 0;
+      padding-left: calc((100vw - var(--max)) / 2);
+      padding-right: 2rem;
+    }
+    .hero-inner { max-width: 460px; }
+  }
 
   .hero-eyebrow {
     font-size: 12px;
@@ -385,6 +501,11 @@
   .project-row:first-child { border-top: 1px solid var(--border); }
   .project-row:hover { background: rgba(192,85,42,0.03); }
 
+  /* En teléfonos se reduce la columna de años para dar más ancho al proyecto. */
+  @media (max-width: 580px) {
+    .project-row { grid-template-columns: 38px 1fr auto; gap: 0.8rem; }
+  }
+
   .project-year {
     font-family: var(--serif);
     font-size: 0.85rem;
@@ -583,6 +704,31 @@
 
   footer a { color: var(--ink3); text-decoration: none; }
   footer a:hover { color: var(--rust); }
+
+  /* ── FALLBACK ──
+     Sin JS, con el CDN de anime.js caído o con prefers-reduced-motion,
+     el contenido debe verse igual (sin animaciones). */
+  html:not(.js) .hero-eyebrow,
+  html:not(.js) .hero-name,
+  html:not(.js) .hero-role,
+  html:not(.js) .hero-rule,
+  html:not(.js) .hero-cta,
+  html:not(.js) .sec-label,
+  html:not(.js) .sec-title,
+  html:not(.js) .about-text,
+  html:not(.js) .skills-col,
+  html:not(.js) .project-row,
+  html:not(.js) .tl-entry,
+  html:not(.js) .pub-entry,
+  html:not(.js) .contact-text,
+  html:not(.js) .contact-links {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+  }
 </style>
 </head>
 <body itemscope itemtype="https://schema.org/Person">
@@ -615,9 +761,13 @@
   <div class="hero-inner">
     <p class="hero-eyebrow">Ingeniero &amp; Data Scientist · Santiago, Chile</p>
     <h1 class="hero-name"><em>L</em>uis <em>P</em>laza <em>A.</em></h1>
+    <figure class="hero-anim" aria-hidden="true">
+      <canvas id="rtd-bg"></canvas>
+      <figcaption id="rtd-caption"><b>Fig 1</b> — Distribución de tiempos de residencia: PFR vs CSTR a igual τ</figcaption>
+    </figure>
     <p class="hero-role">
-      Especialista en Control Avanzado de Proceso (APC/MPC) y tratamiento de aguas.
-      Actualmente en Kairos Mining&thinsp;/&thinsp;Honeywell para Concentradora BHP Escondida.
+      Especialista en sistemas de Control Avanzado de Procesos (MPC) aplicados a procesos de concentradoras de cobre y tratamiento de aguas.
+      Actualmente en Kairos Mining&thinsp;/&thinsp;Honeywell.
     </p>
     <div class="hero-rule" aria-hidden="true"></div>
     <div class="hero-cta">
@@ -632,19 +782,18 @@
 <section id="sobre-mi" aria-labelledby="h-sobre">
   <div class="wrap">
     <p class="sec-label">01 — Sobre mí</p>
-    <h2 class="sec-title" id="h-sobre">Ingeniero con visión de datos</h2>
+    <h2 class="sec-title" id="h-sobre">Ingeniero procesista con visión de datos</h2>
     <div class="about-body">
       <div class="about-text">
         <p>
           Ingeniero Civil Químico y Magíster en Ciencias de la Ingeniería Química por la
-          Universidad Técnica Federico Santa María (UTFSM), Valparaíso. Me especializo en
-          Control Avanzado de Proceso (APC) y Model Predictive Control (MPC) aplicados a
-          minería y tratamiento de aguas.
+          Universidad Técnica Federico Santa María (UTFSM), Valparaíso. Experiencia principal sobre
+          Control Avanzado de Procesos (APC) sobre MPC aplicados a
+          minería y tratamiento de aguas. Experiencia academica en mmodelamiento dinamico de procesos biologicos.
         </p>
         <p>
-          Apasionado por la intersección entre ingeniería de procesos, ciencia de datos y
-          agentes de inteligencia artificial. Creo que la automatización inteligente transforma
-          la industria.
+          Apasionado por la intersección entre ingeniería de procesos, ciencia de datos y inteligencia artificial. 
+          Creo que la automatización inteligente transforma la industria.
         </p>
         <blockquote>
           "Tarea para la casa, aprender a vivir la contradicción sin conflicto"
@@ -661,6 +810,8 @@
             <span class="pill">Trat. de Aguas</span>
             <span class="pill">Microalgas</span>
             <span class="pill">Metalurgia</span>
+            <span class="pill">Molienda</span>
+            <span class="pill">Flotación</span>
           </div>
         </div>
         <div class="skills-group">
@@ -670,6 +821,7 @@
             <span class="pill">Machine Learning</span>
             <span class="pill">LLMs</span>
             <span class="pill">AI Agents</span>
+            <span class="pill">Data Viz</span>
             <span class="pill">Python</span>
           </div>
         </div>
@@ -682,25 +834,16 @@
 <section id="proyectos" aria-labelledby="h-proyectos">
   <div class="wrap">
     <p class="sec-label">02 — Proyectos</p>
-    <h2 class="sec-title" id="h-proyectos">Trabajo seleccionado</h2>
+    <h2 class="sec-title" id="h-proyectos">Trabajos personales</h2>
     <div class="projects-list" role="list">
-
-      <div class="project-row" role="listitem" itemscope itemtype="https://schema.org/SoftwareApplication">
-        <span class="project-year" itemprop="dateCreated">2022</span>
-        <div class="project-info">
-          <p class="project-name" itemprop="name">Calidad de Agua Potable en Chile</p>
-          <p class="project-desc" itemprop="description">Análisis fisicoquímico de la calidad del agua potable a nivel nacional. Visualización interactiva desplegada en Streamlit.</p>
-        </div>
-        <a href="https://calidad-agua-chile.streamlit.app/" target="_blank" rel="noopener noreferrer" class="project-link" itemprop="url" aria-label="Ver proyecto Calidad de Agua Potable en Chile">Ver proyecto ↗</a>
-      </div>
 
       <div class="project-row" role="listitem" itemscope itemtype="https://schema.org/SoftwareApplication">
         <span class="project-year" itemprop="dateCreated">2025</span>
         <div class="project-info">
-          <p class="project-name" itemprop="name">Simulador Control PID</p>
-          <p class="project-desc" itemprop="description">Herramienta educativa interactiva para simulación de control PID aplicado a un tanque. Ideal para cursos de ingeniería de control.</p>
+          <p class="project-name" itemprop="name">Simulador Educativo DEM: Molino SAG</p>
+          <p class="project-desc" itemprop="description">Simulador interactivo basado en el método de Elementos Discretos (DEM) para visualizar la dinámica de carga, regímenes operacionales y análisis energético de molinos SAG en la industria minera.</p>
         </div>
-        <a href="https://luchoplaza.github.io/PIDSim/" target="_blank" rel="noopener noreferrer" class="project-link" itemprop="url" aria-label="Ver simulador PID">Ver simulador ↗</a>
+        <a href="https://luchoplaza.github.io/DEM_SAG/" target="_blank" rel="noopener noreferrer" class="project-link" itemprop="url" aria-label="Ver simulador DEM de Molino SAG">Ver simulador ↗</a>
       </div>
 
       <div class="project-row" role="listitem" itemscope itemtype="https://schema.org/SoftwareApplication">
@@ -709,7 +852,7 @@
           <p class="project-name" itemprop="name">Método Monte Carlo: Simulador</p>
           <p class="project-desc" itemprop="description">Laboratorio que simula el método de Monte Carlo para estimación de parámetros como el número π.</p>
         </div>
-        <a href="https://luchoplaza.github.io/montecarlo_sim.html" target="_blank" rel="noopener noreferrer" class="project-link" aria-label="Ver Extra Page">Ver página ↗</a>
+        <a href="https://luchoplaza.github.io/montecarlo_sim.html" target="_blank" rel="noopener noreferrer" class="project-link" itemprop="url" aria-label="Ver simulador Monte Carlo">Ver página ↗</a>
       </div>
 
       <div class="project-row" role="listitem" itemscope itemtype="https://schema.org/SoftwareApplication">
@@ -718,7 +861,25 @@
           <p class="project-name" itemprop="name">Juego de proyectos de ley en Senado de Chile</p>
           <p class="project-desc" itemprop="description">Dashboard y juego tipo trivia respecto a los proyectos de ley que han ingresado a discusión al poder legislativo en Chile.</p>
         </div>
-        <a href="https://luchoplaza.github.io/chilesenado-viewer/" target="_blank" rel="noopener noreferrer" class="project-link" itemprop="url" aria-label="Ver simulador PID">Ver trivia ↗</a>
+        <a href="https://luchoplaza.github.io/chilesenado-viewer/" target="_blank" rel="noopener noreferrer" class="project-link" itemprop="url" aria-label="Ver trivia de proyectos de ley del Senado">Ver trivia ↗</a>
+      </div>
+
+      <div class="project-row" role="listitem" itemscope itemtype="https://schema.org/SoftwareApplication">
+        <span class="project-year" itemprop="dateCreated">2024</span>
+        <div class="project-info">
+          <p class="project-name" itemprop="name">Simulador Control PID</p>
+          <p class="project-desc" itemprop="description">Herramienta educativa interactiva para simulación de control PID aplicado a un tanque. Ideal para cursos de ingeniería de control.</p>
+        </div>
+        <a href="https://luchoplaza.github.io/PIDSim/" target="_blank" rel="noopener noreferrer" class="project-link" itemprop="url" aria-label="Ver simulador PID">Ver simulador ↗</a>
+      </div>
+
+      <div class="project-row" role="listitem" itemscope itemtype="https://schema.org/SoftwareApplication">
+        <span class="project-year" itemprop="dateCreated">2022</span>
+        <div class="project-info">
+          <p class="project-name" itemprop="name">Calidad de Agua Potable en Chile</p>
+          <p class="project-desc" itemprop="description"> Visualización interactiva de datos del análisis fisicoquímico de la calidad del agua potable a nivel nacional.</p>
+        </div>
+        <a href="https://luchoplaza.github.io/calidad-agua-chile/" target="_blank" rel="noopener noreferrer" class="project-link" itemprop="url" aria-label="Ver proyecto Calidad de Agua Potable en Chile">Ver proyecto ↗</a>
       </div>
 
     </div>
@@ -746,7 +907,7 @@
         </div>
         <div class="tl-entry" itemscope itemtype="https://schema.org/EducationalOccupationalCredential">
           <p class="tl-date">2024</p>
-          <p class="tl-name" itemprop="name">Hidrógeno Verde</p>
+          <p class="tl-name" itemprop="name">Formación en tecnologías de producción, aplicación y sostenibilidad del hidrógeno verde</p>
           <p class="tl-where">Universidad Técnica Federico Santa María, Valparaíso</p>
         </div>
         <div class="tl-entry" itemscope itemtype="https://schema.org/EducationalOccupationalCredential">
@@ -761,7 +922,7 @@
         <div class="tl-entry" itemscope itemtype="https://schema.org/OrganizationRole">
           <p class="tl-date">2019</p>
           <p class="tl-name" itemprop="roleName">Stagiaire BIOCORE Team </p>
-          <p class="tl-where" itemprop="description">INRIA Sophia-Antopolis, Francia</p>
+          <p class="tl-where" itemprop="description">INRIA Sophia Antipolis, Francia</p>
         </div>
         <div class="tl-entry" itemscope itemtype="https://schema.org/OrganizationRole">
           <p class="tl-date">2023 – Presente</p>
@@ -807,8 +968,8 @@
     <div class="contact-body">
       <div class="contact-text">
         <p>
-          Disponible para colaboraciones en proyectos de ingeniería de procesos, control avanzado,
-          ciencia de datos o investigación aplicada. No dudes en escribirme.
+          Disponible para colaboraciones en proyectos de ingeniería de procesos/control avanzado,
+          ciencia de datos, asesorías en tratamiento de aguas o investigación aplicada. No dudes en escribirme.
         </p>
       </div>
       <div class="contact-links">
@@ -846,57 +1007,387 @@ window.addEventListener('scroll', () => {
     (window.scrollY / (h.scrollHeight - h.clientHeight) * 100) + '%';
 }, { passive: true });
 
-/* ── HERO ENTRANCE ── */
-window.addEventListener('DOMContentLoaded', () => {
-  const tl = anime.timeline({ easing: 'easeOutQuart' });
-  tl
-    .add({ targets: '.hero-eyebrow', opacity: [0,1], translateY: [12,0], duration: 600 })
-    .add({ targets: '.hero-name',    opacity: [0,1], translateY: [24,0], duration: 750 }, '-=350')
-    .add({ targets: '.hero-role',    opacity: [0,1], translateY: [16,0], duration: 600 }, '-=450')
-    .add({ targets: '.hero-rule',    opacity: [0,1], scaleX: [0,1],     duration: 500 }, '-=300')
-    .add({ targets: '.hero-cta',     opacity: [0,1], translateY: [12,0], duration: 500 }, '-=200');
-});
+/* ── ANIMACIONES ──
+   Si anime.js no cargó (CDN caído) o el usuario prefiere menos movimiento,
+   se quita la clase "js" y el CSS de fallback muestra todo el contenido. */
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/* ── INTERSECTION OBSERVER REVEAL ── */
-const seen = new WeakSet();
+if (typeof anime === 'undefined' || reduceMotion) {
+  document.documentElement.classList.remove('js');
+} else {
 
-const io = new IntersectionObserver((entries) => {
-  entries.forEach(({ target, isIntersecting }) => {
-    if (!isIntersecting || seen.has(target)) return;
-    seen.add(target);
+  /* ── HERO ENTRANCE ── */
+  window.addEventListener('DOMContentLoaded', () => {
+    const tl = anime.timeline({ easing: 'easeOutQuart' });
+    tl
+      .add({ targets: '.hero-eyebrow', opacity: [0,1], translateY: [12,0], duration: 600 })
+      .add({ targets: '.hero-name',    opacity: [0,1], translateY: [24,0], duration: 750 }, '-=350')
+      .add({ targets: '.hero-role',    opacity: [0,1], translateY: [16,0], duration: 600 }, '-=450')
+      .add({ targets: '.hero-rule',    opacity: [0,1], scaleX: [0,1],     duration: 500 }, '-=300')
+      .add({ targets: '.hero-cta',     opacity: [0,1], translateY: [12,0], duration: 500 }, '-=200');
+  });
 
-    const type  = target.dataset.rev;
-    const delay = parseInt(target.dataset.delay || 0);
+  /* ── INTERSECTION OBSERVER REVEAL ── */
+  const seen = new WeakSet();
 
-    anime({
-      targets: target,
-      opacity: [0, 1],
-      translateY: [type === 'slide-x' ? 0 : 18, 0],
-      translateX: type === 'slide-x' ? [-16, 0] : 0,
-      duration: 650,
-      delay,
-      easing: 'easeOutQuart'
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(({ target, isIntersecting }) => {
+      if (!isIntersecting || seen.has(target)) return;
+      seen.add(target);
+
+      const type  = target.dataset.rev;
+      const delay = parseInt(target.dataset.delay || 0);
+
+      anime({
+        targets: target,
+        opacity: [0, 1],
+        translateY: [type === 'slide-x' ? 0 : 18, 0],
+        translateX: type === 'slide-x' ? [-16, 0] : 0,
+        duration: 650,
+        delay,
+        easing: 'easeOutQuart'
+      });
     });
-  });
-}, { threshold: 0.12 });
+  }, { threshold: 0.12 });
 
-function tag(sel, type, stagger = 0) {
-  document.querySelectorAll(sel).forEach((el, i) => {
-    el.dataset.rev   = type;
-    el.dataset.delay = i * stagger;
-    io.observe(el);
-  });
+  function tag(sel, type, stagger = 0) {
+    document.querySelectorAll(sel).forEach((el, i) => {
+      el.dataset.rev   = type;
+      el.dataset.delay = i * stagger;
+      io.observe(el);
+    });
+  }
+
+  tag('.sec-label',    'fade',    0);
+  tag('.sec-title',    'fade',    80);
+  tag('.about-text',   'fade',    0);
+  tag('.skills-col',   'fade',    120);
+  tag('.project-row',  'fade',    100);
+  tag('.tl-entry',     'slide-x', 90);
+  tag('.pub-entry',    'fade',    0);
+  tag('.contact-text', 'fade',    0);
+  tag('.contact-links','fade',    100);
 }
+</script>
 
-tag('.sec-label',    'fade',    0);
-tag('.sec-title',    'fade',    80);
-tag('.about-text',   'fade',    0);
-tag('.skills-col',   'fade',    120);
-tag('.project-row',  'fade',    100);
-tag('.tl-entry',     'slide-x', 90);
-tag('.pub-entry',    'fade',    0);
-tag('.contact-text', 'fade',    0);
-tag('.contact-links','fade',    100);
+<!-- ── RTD PFR vs CSTR ── -->
+<script>
+(function(){
+  const cvs = document.getElementById('rtd-bg');
+  if (!cvs || typeof cvs.getContext !== 'function') return;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const ctx = cvs.getContext('2d');
+  let W = 0, H = 0, DPR = 1;
+
+  /* ── Física ──  mismo τ ⇒ misma media, distinta forma */
+  const TAU = 8, T_TOT = 32, SIG = 1.35, N = 150;
+  const Epfr  = t => Math.exp(-((t - TAU) ** 2) / (2 * SIG * SIG)) / (SIG * Math.sqrt(6.2832));
+  const Ecstr = t => (t < 0 ? 0 : Math.exp(-t / TAU) / TAU);
+  const PEAK  = Epfr(TAU);
+
+  /* RNG determinista ⇒ el fondo es siempre el mismo */
+  function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+    let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+    return((t^t>>>14)>>>0)/4294967296;};}
+  const rnd = mulberry32(20260722);
+  const gauss = () => Math.sqrt(-2*Math.log(1-rnd()))*Math.cos(6.2832*rnd());
+  const smooth = u => u*u*(3-2*u);
+
+  /* Muestreo: la mitad al PFR, la mitad al CSTR */
+  const P = [];
+  for (let i = 0; i < N; i++){
+    const pfr = i < N/2;
+    let tExit = pfr ? TAU + gauss()*SIG : -TAU*Math.log(1-rnd());
+    P.push({
+      pfr,
+      tExit: Math.max(0.3, tExit),
+      jit: rnd()*1.5,               // entra escalonado
+      lane: (rnd()-0.5)*1.0,        // dispersión sobre la curva
+      // movimiento interno del reactor (orbita en el CSTR)
+      f1: rnd()*6.28, f2: rnd()*6.28,
+      w1: .8+rnd()*1.2, w2: .8+rnd()*1.2,
+      a: .4+rnd()*.6,  b: .4+rnd()*.6,
+      yj: (rnd()-0.5)*9
+    });
+  }
+
+  /* Colores en la paleta del sitio */
+  const C_PFR  = '74,107,130';   // pizarra fría  → PFR
+  const C_CSTR = '192,85,42';    // óxido (rust)  → CSTR
+  const C_LINE = '122,117,108';  // trazos de proceso (ink3)
+
+  /* ── Geometría · dos reactores + su histograma ──
+     Escritorio: apilados a la derecha, libre del texto (alineado a la izq).
+     Teléfono:  apilados a lo ancho, en la zona inferior (bajo el texto). */
+  let regionL, hx0, hx1, axisW, scale, RS, phone;
+  let units = [];
+  function layout(){
+    phone = W < 1000;
+    RS = phone ? 0.72 : 1;                  // escala del glifo del reactor
+    const span = 150*RS;                    // ancho del reactor antes del eje
+
+    let bands;
+    if (phone){
+      // Móvil: bloque propio entre el nombre y la descripción; los dos
+      // reactores llenan a lo alto la banda dedicada (ya no hay texto encima).
+      regionL = W*0.06;
+      hx1 = W - W*0.06;
+      hx0 = regionL + span;
+      axisW = hx1 - hx0;
+      bands = [
+        { pfr:true,  yTop:H*0.11, yBase:H*0.50, label:'R-101 · PFR'  },
+        { pfr:false, yTop:H*0.57, yBase:H*0.96, label:'R-102 · CSTR' }
+      ];
+    } else {
+      // Escritorio: módulo compacto pegado a la derecha, junto a su curva,
+      // siempre despejado del texto (alineado a la izquierda).
+      hx1 = W - W*0.03;
+      const textEnd = (W - 780)/2 + 460;    // borde derecho del bloque de texto
+      axisW = Math.max(210, Math.min(430, W*0.5 - 360));
+      regionL = hx1 - axisW - span;
+      if (regionL < textEnd + 44){          // nunca invadir el texto
+        regionL = textEnd + 44;
+        hx0 = regionL + span;
+        axisW = hx1 - hx0;
+      } else {
+        hx0 = regionL + span;
+      }
+      bands = [
+        { pfr:true,  yTop:H*0.19, yBase:H*0.48, label:'R-101 · PFR'  },
+        { pfr:false, yTop:H*0.54, yBase:H*0.83, label:'R-102 · CSTR' }
+      ];
+    }
+
+    const Hcurve = (bands[0].yBase - bands[0].yTop) - 42*RS;
+    scale = Hcurve / PEAK;
+
+    units = bands.map(b => {
+      const reactorY = b.yTop + 20*RS;
+      let r, outlet;
+      if (b.pfr){
+        const tx = regionL + 18*RS, tw = 100*RS, th = 18*RS;
+        outlet = { x: tx + tw + 22*RS, y: reactorY };
+        r = { pfr:true, tx, tw, th };
+      } else {
+        const tw = 74*RS, tx = regionL + 34*RS, top = reactorY - 18*RS, bot = reactorY + 40*RS;
+        outlet = { x: tx + tw + 18*RS, y: reactorY + 40*RS };
+        r = { pfr:false, tx, tw, top, bot, cx: tx + tw/2, cy: reactorY + 10*RS };
+      }
+      return { ...b, reactorY, baseline: b.yBase, outlet, r };
+    });
+  }
+  const X = t => hx0 + Math.min(t, T_TOT)/T_TOT * axisW;
+  const Ycurve = (u, t) => u.baseline - (u.pfr ? Epfr(t) : Ecstr(t)) * scale;
+
+  function resize(){
+    DPR = Math.min(2, window.devicePixelRatio || 1);
+    W = cvs.clientWidth; H = cvs.clientHeight;
+    cvs.width = Math.round(W*DPR); cvs.height = Math.round(H*DPR);
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    layout();
+  }
+
+  /* trazo redondeado seguro (no depende de ctx.roundRect) */
+  function roundRect(x, y, w, h, r){
+    ctx.beginPath();
+    ctx.moveTo(x+r, y);
+    ctx.arcTo(x+w, y,   x+w, y+h, r);
+    ctx.arcTo(x+w, y+h, x,   y+h, r);
+    ctx.arcTo(x,   y+h, x,   y,   r);
+    ctx.arcTo(x,   y,   x+w, y,   r);
+    ctx.closePath();
+  }
+
+  /* ── Dibujo del reactor ── */
+  function drawReactor(u, col){
+    const y = u.reactorY, r = u.r, lc = `rgba(${C_LINE},0.5)`;
+    ctx.lineWidth = 1.5;
+    if (u.pfr){
+      // tubo horizontal + flecha de salida
+      ctx.strokeStyle = lc;
+      ctx.beginPath(); ctx.moveTo(regionL, y); ctx.lineTo(r.tx, y); ctx.stroke();
+      ctx.strokeStyle = `rgba(${col},0.85)`;
+      roundRect(r.tx, y - r.th/2, r.tw, r.th, r.th/2); ctx.stroke();
+      ctx.strokeStyle = lc;
+      ctx.beginPath(); ctx.moveTo(r.tx + r.tw, y); ctx.lineTo(u.outlet.x, y); ctx.stroke();
+      ctx.fillStyle = lc;
+      ctx.beginPath();
+      ctx.moveTo(u.outlet.x-7, y-4.5); ctx.lineTo(u.outlet.x+3, y); ctx.lineTo(u.outlet.x-7, y+4.5);
+      ctx.closePath(); ctx.fill();
+    } else {
+      // estanque con agitador
+      const rad = 13*RS, sx = r.cx;
+      ctx.strokeStyle = lc;
+      ctx.beginPath(); ctx.moveTo(regionL, r.top); ctx.lineTo(r.tx + 20*RS, r.top); ctx.stroke(); // entrada
+      // vasija (fondo redondeado)
+      ctx.strokeStyle = `rgba(${col},0.85)`;
+      ctx.beginPath();
+      ctx.moveTo(r.tx, r.top);
+      ctx.lineTo(r.tx, r.bot - rad);
+      ctx.quadraticCurveTo(r.tx, r.bot, r.tx + rad, r.bot);
+      ctx.lineTo(r.tx + r.tw - rad, r.bot);
+      ctx.quadraticCurveTo(r.tx + r.tw, r.bot, r.tx + r.tw, r.bot - rad);
+      ctx.lineTo(r.tx + r.tw, r.top);
+      ctx.stroke();
+      // eje + impulsor del agitador
+      ctx.strokeStyle = lc;
+      ctx.beginPath();
+      ctx.moveTo(sx, r.top - 8*RS); ctx.lineTo(sx, y + 13*RS);
+      ctx.moveTo(sx - 12*RS, y + 13*RS); ctx.lineTo(sx + 12*RS, y + 13*RS);
+      ctx.moveTo(sx - 8*RS,  y + 5*RS);  ctx.lineTo(sx + 8*RS,  y + 5*RS);
+      ctx.stroke();
+      // salida + flecha
+      ctx.beginPath(); ctx.moveTo(r.tx + r.tw, u.outlet.y); ctx.lineTo(u.outlet.x, u.outlet.y); ctx.stroke();
+      ctx.fillStyle = lc;
+      ctx.beginPath();
+      ctx.moveTo(u.outlet.x-7, u.outlet.y-4.5); ctx.lineTo(u.outlet.x+3, u.outlet.y); ctx.lineTo(u.outlet.x-7, u.outlet.y+4.5);
+      ctx.closePath(); ctx.fill();
+    }
+  }
+
+  /* ── Curva teórica E(t) + relleno ── */
+  function drawCurve(u, col, reveal){
+    ctx.beginPath();
+    ctx.moveTo(X(0), u.baseline);
+    for (let t = 0; t <= T_TOT; t += 0.3) ctx.lineTo(X(t), Ycurve(u, t));
+    ctx.lineTo(X(T_TOT), u.baseline);
+    ctx.fillStyle = `rgba(${col},${0.05*reveal})`;
+    ctx.fill();
+
+    ctx.beginPath();
+    for (let t = 0; t <= T_TOT; t += 0.3){
+      const x = X(t), y = Ycurve(u, t);
+      if (t === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = `rgba(${col},${0.30*reveal})`;
+    ctx.lineWidth = 1.4;
+    ctx.setLineDash([4,4]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  /* ── Estadísticos en vivo (t̄ y σ² sobre lo ya recolectado) ── */
+  function drawStats(u, col, t){
+    let s = 0, s2 = 0, n = 0;
+    for (let i = 0; i < N; i++){
+      const p = P[i];
+      if (p.pfr !== u.pfr) continue;
+      if (t >= p.tExit){ s += p.tExit; s2 += p.tExit*p.tExit; n++; }
+    }
+    const mean = n ? s/n : 0;
+    const varc = n ? Math.max(0, s2/n - mean*mean) : 0;
+    const yL = u.yTop - 4;
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'alphabetic';
+    ctx.font = '600 11px "DM Sans",system-ui,sans-serif';
+    ctx.fillStyle = `rgba(${col},0.92)`;
+    ctx.fillText(u.label, hx1, yL);
+    ctx.font = '500 11px ui-monospace,"Cascadia Mono",Consolas,monospace';
+    ctx.fillStyle = `rgba(61,58,53,0.72)`;
+    ctx.fillText(
+      `t̄ ${n?mean.toFixed(1):'–'} min    σ² ${n?varc.toFixed(1):'–'}`,
+      hx1, yL + 15
+    );
+  }
+
+  function frame(t, env){
+    ctx.clearRect(0,0,W,H);
+    ctx.globalAlpha = env;
+    const reveal = Math.min(1, t/T_TOT * 1.6);
+
+    units.forEach(u => {
+      const col = u.pfr ? C_PFR : C_CSTR;
+
+      drawCurve(u, col, reveal);
+
+      // eje base + ticks
+      ctx.strokeStyle = `rgba(${C_LINE},0.22)`;
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(hx0, u.baseline); ctx.lineTo(hx1, u.baseline); ctx.stroke();
+      for (let m = 0; m <= T_TOT; m += 8){
+        const x = X(m);
+        ctx.beginPath(); ctx.moveTo(x, u.baseline); ctx.lineTo(x, u.baseline+4); ctx.stroke();
+      }
+
+      drawReactor(u, col);
+      drawStats(u, col, t);
+
+      // cursor de tiempo (el "reloj")
+      const cx = X(t);
+      ctx.strokeStyle = `rgba(192,85,42,0.20)`;
+      ctx.beginPath(); ctx.moveTo(cx, u.reactorY + 24*RS); ctx.lineTo(cx, u.baseline); ctx.stroke();
+
+      // partículas de trazador de esta unidad
+      for (let i = 0; i < N; i++){
+        const p = P[i];
+        if (p.pfr !== u.pfr || t < p.jit) continue;
+        let x, y, r = 1.7*RS + 0.4, a;
+
+        if (t < p.tExit){
+          const th = t - p.jit;
+          if (u.pfr){
+            // pistón: avanza linealmente por el tubo hasta salir en tExit
+            const uu = th / (p.tExit - p.jit);
+            x = u.r.tx + uu * (u.outlet.x - u.r.tx);
+            y = u.reactorY + p.yj*0.3*RS;
+          } else {
+            // mezcla: orbita dentro del estanque hasta salir
+            const ent = smooth(Math.min(1, th/0.9));
+            const ox = u.r.cx + (u.r.tw*0.34)*p.a*Math.sin(p.w1*th*2.0 + p.f1);
+            const oy = u.r.cy + (u.r.tw*0.22)*p.b*Math.sin(p.w2*th*2.0 + p.f2);
+            const inX = u.r.tx, inY = u.r.top;
+            x = inX + (ox - inX)*ent;
+            y = inY + (oy - inY)*ent;
+          }
+          a = 0.5;
+        } else {
+          // sale del reactor y se asienta sobre la curva
+          const tE = t - p.tExit;
+          const tgtX = X(p.tExit), tgtY = Ycurve(u, p.tExit) + p.lane*3;
+          if (tE < 0.9){
+            const s = smooth(tE/0.9);
+            x = u.outlet.x + (tgtX - u.outlet.x)*s;
+            y = u.outlet.y + (tgtY - u.outlet.y)*s - Math.sin(Math.PI*s)*13*RS;
+            a = 0.5 + 0.35*s; r = 2.0*RS + 0.4;
+          } else {
+            x = tgtX; y = tgtY; a = 0.9; r = 2.0*RS + 0.5;
+          }
+        }
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, 6.2832);
+        ctx.fillStyle = `rgba(${col},${a})`;
+        ctx.fill();
+      }
+    });
+
+    ctx.globalAlpha = 1;
+  }
+
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+
+  if (reduce){
+    // Estado final estático: curvas completas + partículas asentadas
+    frame(T_TOT, 1);
+    return;
+  }
+
+  const PERIOD = 22000;   // duración del ciclo [ms]
+  let start = null;
+  function loop(now){
+    if (start === null) start = now;
+    const p = ((now - start) % PERIOD) / PERIOD;
+    const t = p * T_TOT;
+    // envolvente de opacidad: entra y sale suave para un loop sin cortes
+    let env = 1;
+    if (p < 0.06)       env = p/0.06;
+    else if (p > 0.90)  env = (1 - p)/0.10;
+    frame(t, env);
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+})();
 </script>
 
 </body>
