@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Quién fue esta calle · Hanga Roa</title>
+<style>
+:root{
+  --basalto:#1C1B18;
+  --lichen:#E3E5DE;
+  --lichen-hi:#EEEFE9;
+  --oceano:#17414F;
+  --pukao:#93372A;
+  --tinta-suave:#5A5C52;
+  --linea:#C6C9BF;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--lichen);
+  color:var(--basalto);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  font-size:17px;
+  line-height:1.5;
+  -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:640px;margin:0 auto;padding:0 18px 64px}
+
+/* ---- banda de estado ---- */
+.estado{
+  position:sticky;top:0;z-index:40;
+  margin:0 -18px 26px;padding:22px 18px 18px;
+  background:var(--basalto);color:var(--lichen-hi);
+  padding-top:calc(22px + env(safe-area-inset-top));
+}
+.estado .modo{
+  font-size:12.5px;letter-spacing:.02em;color:#9EA396;margin:0 0 6px;
+}
+.estado .aqui{
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:30px;line-height:1.12;margin:0;font-weight:normal;
+}
+.estado .quien{margin:7px 0 0;font-size:14.5px;color:#B9BDB0}
+.estado.fijado{background:var(--pukao)}
+.estado.fijado .modo{color:#E8C4BC}
+.estado.fijado .quien{color:#EDD2CB}
+.pulso{
+  display:inline-block;width:8px;height:8px;border-radius:50%;
+  background:currentColor;margin-right:7px;vertical-align:1px;
+}
+@media (prefers-reduced-motion:no-preference){
+  .estado.fijado .pulso{animation:lat 2.4s ease-in-out infinite}
+}
+@keyframes lat{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* ---- botones ---- */
+button{font:inherit;cursor:pointer}
+.accion{
+  width:100%;padding:15px;border:1px solid var(--basalto);
+  background:var(--basalto);color:var(--lichen-hi);border-radius:2px;
+}
+.accion.secundaria{background:transparent;color:var(--basalto)}
+.accion:focus-visible,.calle:focus-visible{outline:3px solid var(--oceano);outline-offset:2px}
+
+/* ---- ficha ---- */
+.ficha{border-top:1px solid var(--linea)}
+.calle{
+  display:block;width:100%;text-align:left;background:none;border:0;
+  padding:16px 0;color:inherit;
+}
+.calle .nom{
+  font-family:Georgia,serif;font-size:21px;line-height:1.25;display:block;
+}
+.calle .sub{display:block;font-size:14px;color:var(--tinta-suave);margin-top:3px}
+.calle[aria-expanded="true"] .nom{color:var(--pukao)}
+.cuerpo{display:none;padding:0 0 22px}
+.cuerpo.abierto{display:block}
+.cuerpo p{margin:0 0 14px;font-family:Georgia,serif;line-height:1.62;max-width:62ch}
+.cuerpo p:last-child{margin-bottom:0}
+.meta{
+  font-family:-apple-system,sans-serif;font-size:13.5px;color:var(--tinta-suave);
+  border-left:2px solid var(--oceano);padding-left:11px;margin:0 0 16px;
+}
+.duda{border-left-color:var(--pukao)}
+.dist{float:right;font-size:13px;color:var(--tinta-suave);padding-top:6px}
+
+h2{
+  font-family:Georgia,serif;font-weight:normal;font-size:15px;
+  color:var(--tinta-suave);margin:34px 0 2px;
+}
+#mapa{height:280px;border:1px solid var(--linea);background:var(--lichen-hi);margin:10px 0 6px}
+.nota{font-size:13.5px;color:var(--tinta-suave);margin:10px 0}
+.sinficha{font-size:14px;color:var(--tinta-suave);line-height:1.7}
+.sinficha b{font-weight:600;color:var(--basalto)}
+</style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+</head>
+<body>
+<div class="wrap">
+
+<div class="estado" id="estado">
+  <p class="modo" id="modo"><span class="pulso"></span>Buscando señal GPS</p>
+  <p class="aqui" id="aqui">Hanga Roa</p>
+  <p class="quien" id="quien">Camina y la ficha se abre sola.</p>
+</div>
+
+<div id="arranque">
+  <p class="nota">La primera vez necesita internet para bajar el trazado de las calles. Después funciona sin señal mientras no cierres la pestaña.</p>
+  <button class="accion" id="btn-iniciar">Activar ubicación</button>
+</div>
+
+<h2>Mapa</h2>
+<div id="mapa"></div>
+<p class="nota" id="nota-mapa">Sin conexión el mapa queda en blanco, pero las fichas y el GPS siguen andando.</p>
+
+<h2>Las calles</h2>
+<div id="lista"></div>
+
+<div id="pendientes"></div>
+
+<h2>Sobre esto</h2>
+<p class="nota">Las fichas marcadas en rojo están sin confirmar: contrástalas con el Museo Antropológico Sebastián Englert o con quien te atienda en la calle. El trazado viene de OpenStreetMap, colaborativo y a veces incompleto.</p>
+<button class="accion secundaria" id="btn-limpiar">Volver a bajar el trazado</button>
+
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/* ============ 1. Contenido: quién fue cada calle ============ */
+const PERSONAJES = [
+  {
+    nombre:"Hotu Matuʻa",
+    sub:"El ariki que llegó de Hiva",
+    tipo:"Fundador · siglos XII–XIII (tradición oral)",
+    firme:true,
+    texto:[
+      "El sabio Haumaka soñó con la destrucción de su tierra natal, Hiva, y con una tierra nueva a la que llamó Te Pito o Te Kainga. Su hermano, el ariki Hotu Matuʻa, armó la travesía: dos embarcaciones cargadas de gente, plantas y animales, cruzando un océano sin más referencia que ese sueño.",
+      "Desembarcaron en Hanga Rau, la playa que hoy llamamos Anakena, y ahí quedó la residencia real. De él desciende el mata Miru, el clan del que salían los ariki. Que la avenida que te lleva del aeropuerto al pueblo lleve su nombre no es casual: sigue siendo la puerta de entrada."
+    ]
+  },
+  {
+    nombre:"Tuʻu Maheke",
+    sub:"El primer rapanui",
+    tipo:"Hijo de Hotu Matuʻa y Vakai a Heva",
+    firme:true,
+    texto:[
+      "Cuando la canoa de Hotu Matuʻa tocó Anakena, su esposa Vakai estaba por dar a luz. Tuʻu Maheke nació en esa playa: el primero de su pueblo nacido en la isla, y por eso el primer heredero del linaje real.",
+      "Desde 2021 la comunidad Maʻu Henua conmemora cada 7 de julio ese desembarco y ese nacimiento. Es una fecha joven para un relato antiguo — una decisión deliberada de volver a poner el origen en el calendario."
+    ]
+  },
+  {
+    nombre:"Avareipua",
+    sub:"La hermana que capitaneó la segunda canoa",
+    tipo:"Hermana de Hotu Matuʻa",
+    firme:false,
+    texto:[
+      "Las versiones de la travesía hablan de dos embarcaciones: una de Hotu Matuʻa y otra de su hermana Avareipua. Media migración fundacional viajó bajo su mando.",
+      "Aparece poco en los relatos que llegaron a los libros, que se organizaron casi siempre alrededor de los ariki hombres. Que tenga calle propia en Hanga Roa corrige algo de ese desbalance."
+    ]
+  },
+  {
+    nombre:"Atamu Tekena",
+    sub:"El rey que firmó 1888",
+    tipo:"ʻAriki 1883–1892",
+    firme:true,
+    texto:[
+      "La calle principal del pueblo. Atamu Maurata Te Kena ʻAo Tahi gobernó desde 1883 hasta su muerte en 1892, y en 1888 firmó con el capitán chileno Policarpo Toro el Acuerdo de Voluntades que incorporó la isla a Chile.",
+      "El punto espinoso es que las dos versiones del documento no dicen lo mismo: la redactada en español habla de cesión de soberanía, la redactada en rapanui no. Ciento y tantos años después el desacuerdo sigue vivo, y vas a ver carteles en esta misma calle que lo dicen sin rodeos.",
+      "Un detalle que la costumbre turística repite mal: se le suele llamar «el último rey», pero después de él todavía gobernó Riro Kāinga. El busto que le hizo Tebo Pakarati en 2000 está en la plaza que lleva el nombre de Toro, los dos firmantes puestos uno al lado del otro."
+    ]
+  },
+  {
+    nombre:"Policarpo Toro",
+    sub:"El capitán chileno de la anexión",
+    tipo:"Marino, ceremonia de 1888",
+    firme:true,
+    texto:[
+      "Oficial de la Armada chilena que empujó durante años la incorporación de la isla y ofició la ceremonia de 1888 frente a Atamu Tekena.",
+      "Su calle corre junto a la costa y su nombre está también en la plaza central. Leída junto con Atamu Tekena, la nomenclatura de Hanga Roa cuenta el mismo episodio desde los dos lados, sin resolverlo."
+    ]
+  },
+  {
+    nombre:"Simón Riro Kāinga",
+    sub:"El último ariki",
+    tipo:"ʻAriki 1892–1898/99",
+    firme:false,
+    texto:[
+      "Timeone Riro ʻa Kāinga Rokoroko He Tau sucedió a Atamu Tekena y fue el último en llevar el título. Viajó al continente a reclamar por los abusos de la compañía ovejera que arrendaba la isla y murió en Valparaíso, en circunstancias que en la isla nunca se dieron por aclaradas.",
+      "Tiene busto en Hanga Roa. Si tu letrero dice solo «Kainga» o «Riroroko», probablemente es él."
+    ]
+  },
+  {
+    nombre:"Miru",
+    sub:"El clan real",
+    tipo:"Mata (tribu), no persona",
+    firme:true,
+    texto:[
+      "No es un individuo sino un mata: el clan que descendía directamente de Hotu Matuʻa y del que salían los ariki. Ocupaba el norte y noroeste de la isla.",
+      "La calle Miru sale de Atamu Tekena hacia Tahai y Ahu Tepeu, o sea hacia el territorio histórico del propio clan. La nomenclatura está siguiendo la geografía tribal, no inventándola."
+    ]
+  },
+  {
+    nombre:"Tuʻu Koihu",
+    sub:"El que talló los moai kavakava",
+    tipo:"Ariki de la genealogía temprana",
+    firme:false,
+    texto:[
+      "La tradición le atribuye haber visto dos espíritus aku-aku demacrados mientras dormían, y haber tallado en madera lo que vio: el origen de los moai kavakava, esas figuras de costillas marcadas que ves en la feria artesanal.",
+      "Verifica esta ficha. Las genealogías rapanui tienen varias versiones y no todas ponen a Tuʻu Koihu en el mismo lugar."
+    ]
+  },
+  {
+    nombre:"Sebastián Englert",
+    sub:"El capuchino que escribió la lengua",
+    tipo:"Misionero y lingüista, en la isla desde 1935",
+    firme:false,
+    texto:[
+      "Sacerdote capuchino alemán que vivió décadas en la isla y levantó el primer registro sistemático del idioma rapanui, además de censar y catalogar sitios arqueológicos.",
+      "El museo antropológico lleva su nombre. Su figura se discute: para unos salvó un idioma de la desaparición, para otros lo fijó por escrito desde afuera y con los criterios de un misionero. Las dos lecturas son defendibles y conviene conocer ambas antes de entrar al museo."
+    ]
+  },
+  {
+    nombre:"Te Pito o Te Henua",
+    sub:"El ombligo del mundo",
+    tipo:"Nombre de lugar, no persona",
+    firme:true,
+    texto:[
+      "El otro eje del pueblo. Es uno de los nombres antiguos de la isla entera y significa literalmente «el ombligo del mundo» — o, según cómo se lea, «el fin de la tierra».",
+      "Sube desde la caleta Hanga Roa Otai hasta la iglesia de Santa Cruz. Que el camino del mar a la iglesia se llame así resume bastante bien la historia del lugar."
+    ]
+  },
+  {
+    nombre:"Mataveri",
+    sub:"Donde terminaba el Tangata Manu",
+    tipo:"Nombre de lugar",
+    firme:false,
+    texto:[
+      "Sector del sur del pueblo, hoy ocupado por el aeropuerto. Era el punto de partida de la competencia del Tangata Manu, el hombre pájaro: los participantes se concentraban aquí antes de subir a Orongo, en el borde del Rano Kau.",
+      "Estás llegando y saliendo de la isla por el mismo lugar donde se decidía quién la gobernaba el año siguiente."
+    ]
+  },
+  {
+    nombre:"Apina",
+    sub:"La caleta del sur",
+    tipo:"Nombre de lugar",
+    firme:false,
+    texto:[
+      "Sector costero al sur de la caleta, Apina Nui y Apina Iti. Zona de ahu y de petroglifos, con acceso al mar por las rocas.",
+      "Ficha por confirmar: revisa si el letrero dice Apina a secas o con apellido."
+    ]
+  },
+  {
+    nombre:"Tahai",
+    sub:"El complejo ceremonial restaurado",
+    tipo:"Nombre de lugar",
+    firme:false,
+    texto:[
+      "Conjunto de tres ahu al norte del pueblo, restaurado por el arqueólogo William Mulloy en los años setenta. Es el único moai con ojos de coral repuestos que vas a ver de cerca sin salir caminando de Hanga Roa.",
+      "Mulloy está enterrado ahí mismo. El atardecer en Tahai es el clásico del pueblo y queda a pasos de esta calle."
+    ]
+  },
+  {
+    nombre:"Hetereki",
+    sub:"El guerrero",
+    tipo:"Figura de la tradición oral",
+    firme:false,
+    texto:[
+      "Aparece en los relatos como guerrero de las guerras entre mata, en el período de conflictos que siguió al fin de la construcción de moai.",
+      "Ficha débil: es de las que más conviene contrastar con una fuente local."
+    ]
+  }
+];
+
+/* ============ 2. Utilidades ============ */
+const norm = s => s.toLowerCase()
+  .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+  .replace(/[\u02bb\u02bc\u2018\u2019'`]/g,"")
+  .replace(/\b(calle|avenida|avda|av|ave|pasaje|psje|camino)\b/g,"")
+  .replace(/[^a-z0-9]/g,"");
+
+const guarda = (k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+const lee = k=>{try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}};
+
+// distancia en metros de un punto a un segmento (plano equirectangular, exacto a esta escala)
+function distSeg(lat,lon,aLat,aLon,bLat,bLon){
+  const k=Math.cos(lat*Math.PI/180)*111320, m=110540;
+  const px=(lon-aLon)*k, py=(lat-aLat)*m;
+  const bx=(bLon-aLon)*k, by=(bLat-aLat)*m;
+  const l2=bx*bx+by*by;
+  let t = l2===0 ? 0 : (px*bx+py*by)/l2;
+  t = Math.max(0,Math.min(1,t));
+  const dx=px-t*bx, dy=py-t*by;
+  return Math.hypot(dx,dy);
+}
+function distACalle(lat,lon,via){
+  let min=Infinity;
+  for(const g of via.geom){
+    for(let i=0;i<g.length-1;i++){
+      const d=distSeg(lat,lon,g[i][0],g[i][1],g[i+1][0],g[i+1][1]);
+      if(d<min)min=d;
+    }
+  }
+  return min;
+}
+
+/* ============ 3. Trazado desde OpenStreetMap ============ */
+const CONSULTA =
+  '[out:json][timeout:40];way["highway"]["name"](-27.178,-109.452,-27.130,-109.400);out geom;';
+const URL_OSM = "https://overpass-api.de/api/interpreter?data="+encodeURIComponent(CONSULTA);
+
+async function traerCalles(){
+  const cache = lee("calles-hangaroa");
+  if(cache && cache.length) return cache;
+  const r = await fetch(URL_OSM);
+  if(!r.ok) throw new Error("Overpass respondió "+r.status);
+  const j = await r.json();
+  const vias = (j.elements||[])
+    .filter(e=>e.geometry && e.geometry.length>1 && e.tags && e.tags.name)
+    .map(e=>({nombre:e.tags.name, geom:[e.geometry.map(p=>[p.lat,p.lon])]}));
+  // fundir tramos con el mismo nombre en una sola calle
+  const porNombre={};
+  for(const v of vias){
+    const k=norm(v.nombre);
+    if(!k) continue;
+    if(!porNombre[k]) porNombre[k]={nombre:v.nombre, geom:[]};
+    porNombre[k].geom.push(v.geom[0]);
+  }
+  const out=Object.values(porNombre);
+  guarda("calles-hangaroa",out);
+  return out;
+}
+
+/* ============ 4. Estado de la app ============ */
+let CALLES=[];        // {nombre, geom, ficha?}
+let SIN_FICHA=[];
+let mapa=null, marcaYo=null, capas={};
+const $=id=>document.getElementById(id);
+
+function emparejar(vias){
+  const dic={};
+  PERSONAJES.forEach(p=>dic[norm(p.nombre)]=p);
+  const usados=new Set();
+  const conFicha=[], sin=[];
+  for(const v of vias){
+    const k=norm(v.nombre);
+    let f=dic[k];
+    if(!f){ // coincidencia parcial: el letrero puede traer más o menos palabras
+      const hit=Object.keys(dic).find(d=>d.length>5 && (k.includes(d)||d.includes(k)));
+      if(hit) f=dic[hit];
+    }
+    if(f){ v.ficha=f; usados.add(norm(f.nombre)); conFicha.push(v); }
+    else sin.push(v);
+  }
+  // fichas que no aparecieron en OSM: se muestran igual, sin geometría
+  for(const p of PERSONAJES){
+    if(!usados.has(norm(p.nombre))) conFicha.push({nombre:p.nombre, geom:[], ficha:p, huerfana:true});
+  }
+  return [conFicha,sin];
+}
+
+function pintarLista(){
+  const cont=$("lista");
+  cont.innerHTML="";
+  CALLES.forEach((c,i)=>{
+    const d=document.createElement("div"); d.className="ficha";
+    const id="c"+i;
+    d.innerHTML=
+      '<button class="calle" aria-expanded="false" aria-controls="'+id+'">'+
+        '<span class="dist" id="d'+i+'"></span>'+
+        '<span class="nom">'+c.nombre+'</span>'+
+        '<span class="sub">'+c.ficha.sub+'</span>'+
+      '</button>'+
+      '<div class="cuerpo" id="'+id+'">'+
+        '<p class="meta'+(c.ficha.firme?'':' duda')+'">'+c.ficha.tipo+
+          (c.ficha.firme?'':' · ficha por confirmar')+
+          (c.huerfana?' · no aparece en OpenStreetMap':'')+'</p>'+
+        c.ficha.texto.map(t=>'<p>'+t+'</p>').join('')+
+      '</div>';
+    const btn=d.querySelector(".calle"), cuerpo=d.querySelector(".cuerpo");
+    btn.onclick=()=>{
+      const ab=cuerpo.classList.toggle("abierto");
+      btn.setAttribute("aria-expanded",ab);
+    };
+    c._btn=btn; c._cuerpo=cuerpo; c._dist=d.querySelector("#d"+i);
+    cont.appendChild(d);
+  });
+
+  if(SIN_FICHA.length){
+    $("pendientes").innerHTML='<h2>Sin ficha todavía</h2>'+
+      '<p class="sinficha">OpenStreetMap tiene estas calles y yo no tengo historia para ellas. '+
+      'Fotografía el letrero y las agregamos:<br><br><b>'+
+      SIN_FICHA.map(v=>v.nombre).join("</b> · <b>")+'</b></p>';
+  }
+}
+
+function abrir(c){
+  CALLES.forEach(o=>{
+    if(o!==c){o._cuerpo.classList.remove("abierto");o._btn.setAttribute("aria-expanded",false);}
+  });
+  c._cuerpo.classList.add("abierto");
+  c._btn.setAttribute("aria-expanded",true);
+  c._btn.scrollIntoView({block:"center",behavior:"smooth"});
+}
+
+/* ============ 5. GPS ============ */
+const UMBRAL=45; // metros: dentro de esto, "estás en"
+let actual=null;
+
+function alMoverse(pos){
+  const {latitude:la,longitude:lo,accuracy:ac}=pos.coords;
+  if(mapa){
+    if(!marcaYo){marcaYo=L.circleMarker([la,lo],{radius:7,color:"#93372A",fillColor:"#93372A",fillOpacity:.85,weight:2}).addTo(mapa);mapa.setView([la,lo],16);}
+    else marcaYo.setLatLng([la,lo]);
+  }
+  let mejor=null, dmin=Infinity;
+  for(const c of CALLES){
+    if(!c.geom.length) continue;
+    const d=distACalle(la,lo,c);
+    c._dist.textContent = d<1000 ? Math.round(d)+" m" : "";
+    if(d<dmin){dmin=d;mejor=c;}
+  }
+  if(!mejor) return;
+  const dentro = dmin<=UMBRAL;
+  $("estado").classList.toggle("fijado",dentro);
+  $("modo").innerHTML='<span class="pulso"></span>'+
+    (dentro ? "Estás aquí" : "Lo más cerca, a "+Math.round(dmin)+" m")+
+    (ac>30 ? " · señal débil" : "");
+  $("aqui").textContent=mejor.nombre;
+  $("quien").textContent=mejor.ficha.sub;
+  if(dentro && mejor!==actual){ actual=mejor; abrir(mejor); }
+  if(!dentro) actual=null;
+}
+
+function errorGPS(e){
+  $("modo").innerHTML="Sin GPS";
+  $("quien").textContent = e.code===1
+    ? "Permiso denegado. Habilítalo para este sitio y recarga."
+    : "No hay posición todavía. Sal a cielo abierto y espera unos segundos.";
+}
+
+/* ============ 6. Arranque ============ */
+function pintarMapa(){
+  try{
+    mapa=L.map("mapa",{attributionControl:true}).setView([-27.1487,-109.4265],15);
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+      {maxZoom:19,attribution:"© OpenStreetMap"}).addTo(mapa);
+    CALLES.forEach(c=>{
+      c.geom.forEach(g=>{
+        L.polyline(g,{color:"#17414F",weight:4,opacity:.75}).addTo(mapa)
+          .on("click",()=>abrir(c));
+      });
+    });
+  }catch(e){ $("nota-mapa").textContent="El mapa no cargó. Las fichas y el GPS funcionan igual."; }
+}
+
+$("btn-iniciar").onclick=async ()=>{
+  $("btn-iniciar").disabled=true;
+  $("btn-iniciar").textContent="Bajando el trazado…";
+  try{
+    const vias=await traerCalles();
+    [CALLES,SIN_FICHA]=emparejar(vias);
+    pintarLista();
+    pintarMapa();
+    $("arranque").innerHTML='<p class="nota">Trazado cargado: '+vias.length+
+      ' calles de OpenStreetMap, '+CALLES.filter(c=>!c.huerfana).length+' con ficha.</p>';
+    if(!navigator.geolocation){ $("modo").textContent="Este navegador no tiene GPS"; return; }
+    navigator.geolocation.watchPosition(alMoverse,errorGPS,
+      {enableHighAccuracy:true,maximumAge:5000,timeout:20000});
+  }catch(e){
+    $("btn-iniciar").disabled=false;
+    $("btn-iniciar").textContent="Reintentar";
+    $("arranque").insertAdjacentHTML("beforeend",
+      '<p class="nota">No se pudo bajar el trazado ('+e.message+'). Necesitas conexión solo para este paso.</p>');
+  }
+};
+
+$("btn-limpiar").onclick=()=>{try{localStorage.removeItem("calles-hangaroa")}catch(e){}location.reload()};
+
+// si ya hay caché, no esperes el botón
+if(lee("calles-hangaroa")) $("btn-iniciar").textContent="Activar ubicación (trazado ya guardado)";
+</script>
+</body>
+</html>
